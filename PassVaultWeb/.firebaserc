@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "passvaultweb": {
+      "hosting": {
+        "PassVaultWeb": [
+          "passvaultweb"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "passvaultweb"
+  }
+}

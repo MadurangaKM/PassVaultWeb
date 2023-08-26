@@ -1,0 +1,9 @@
+{
+  "hosting": [
+    {
+      "target": "PassVaultWeb",
+      "source": ".",
+      "frameworksBackend": {}
+    }
+  ]
+}
