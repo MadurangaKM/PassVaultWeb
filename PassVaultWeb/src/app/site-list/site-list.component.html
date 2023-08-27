@@ -6,17 +6,22 @@
   >
     Add New Site
   </button>
+  <!-- alert  -->
+  <div *ngIf="isSuccess" class="p-5 my-3 bg-green-400 text-white">
+    {{ this.successMsg }}
+  </div>
   <!-- Add New Site form  -->
   <div class="px-20 py-10 mb-10 my-5 border-4 border-gray-900">
-    <h2 class="text-3xl text-center">Add New Site</h2>
-    <p class="text-center">You can add a new site from the below form</p>
-    <form>
+    <h2 class="text-3xl text-center">{{ formState }} Site</h2>
+    <p class="text-center">You can {{ formState }} site from the below form</p>
+    <form #f="ngForm" (ngSubmit)="onSubmit(f.value)">
       <div class="flex flex-col">
         <label class="text-lg font-medium mb-2">Site Name</label>
         <input
           type="text"
           name="siteName"
           class="border-2 border-gray-900 p-2 rounded-lg w-full mb-3"
+          [(ngModel)]="siteName"
         />
       </div>
       <div class="flex flex-col">
@@ -25,6 +30,7 @@
           type="text"
           name="siteUrl"
           class="border-2 border-gray-900 p-2 rounded-lg w-full mb-3"
+          [(ngModel)]="siteUrl"
         />
       </div>
       <div class="flex flex-col">
@@ -33,15 +39,17 @@
           type="text"
           name="siteImgUrl"
           class="border-2 border-gray-900 p-2 rounded-lg w-full"
+          [(ngModel)]="siteImgUrl"
         />
       </div>
       <button
         class="mt-10 mx-0.5 px-5 py-3 text-sm bg-grqy-900 text-white shadow rounded-md bg-gray-900"
       >
-        Add New Site
+        {{ formState }} Site
       </button>
       <button
         class="mt-10 mx-0.5 px-5 py-2.5 text-sm border-2 border-gray-900 text-gray-900 shadow rounded-md"
+        (click)="handleCancel()"
       >
         Cancel
       </button>
@@ -49,16 +57,16 @@
   </div>
   <!-- Site cart  -->
   <div class="grid grid-cols-4 gap-5">
-    <div class="shadow-lg border-2 border-gray-900">
-      <img
-        src="https://cdn.mos.cms.futurecdn.net/dcHyDicd7tuDEJX75NDoqV.jpeg"
-        alt=""
-      />
-      <h3 class="p-3 text-xl font-bold">Godaddy.com</h3>
+    <div
+      class="shadow-lg border-2 border-gray-900"
+      *ngFor="let site of allSites | async"
+    >
+      <img [src]="site.siteImgUrl" alt="" />
+      <h3 class="p-3 text-xl font-bold">{{ site.siteName }}</h3>
       <div
         class="w-auto mt-3 mx-3 px-3 py-3 bg-blue-200 text-blue-800 rounded-lg text-sm"
       >
-        https://godaddy.com
+        {{ site.siteUrl }}
       </div>
       <button
         class="mt-3 ml-3 mx-0.5 px-5 py-3 text-sm bg-gray-900 text-white shoadow rounded-md"
@@ -68,11 +76,15 @@
       <br />
       <button
         class="mt-1 mb-3 ml-3 mx-0.5 px-5 py-2.5 text-sm border-2 border-gray-900 text-gray-900 shadow rounded-md"
+        (click)="
+          handleEditSite(site.siteName, site.siteUrl, site.siteImgUrl, site.id)
+        "
       >
         Edit
       </button>
       <button
         class="my-3 mx-0.5 px-5 py-2.5 text-sm border-2 border-gray-900 text-gray-900 shodow rounded-md"
+        (click)="handleDelete(site.id)"
       >
         Delete
       </button>
