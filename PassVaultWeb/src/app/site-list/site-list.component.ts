@@ -25,7 +25,7 @@ export class SiteListComponent {
     this.successMsg = message;
   }
   onSubmit(values: object) {
-    if (this.formState == 'Add New') {
+    if (this.formState == 'Add new') {
       this.passwordManager
         .addSite(values)
         .then((docRef) => {

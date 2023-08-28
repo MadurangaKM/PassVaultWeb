@@ -70,6 +70,13 @@
       </div>
       <button
         class="mt-3 ml-3 mx-0.5 px-5 py-3 text-sm bg-gray-900 text-white shoadow rounded-md"
+        routerLink="/password-list"
+        [queryParams]="{
+          id: site.id,
+          siteName: site.siteName,
+          siteUrl: site.siteUrl,
+          siteImgUrl: site.siteImgUrl
+        }"
       >
         Add new Password
       </button>
