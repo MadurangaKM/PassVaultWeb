@@ -1,12 +1,7 @@
 <app-navbar></app-navbar>
 <div class="container mx-auto my-16">
-  <h1 class="text-5xl mt-0 mb-5">PassVaultWeb</h1>
+  <h1 class="text-5xl mt-0 mb-3">PassVaultWeb</h1>
   <p class="mb-5">Your password manage app</p>
-  <button
-    class="mb-5 mx-0.5 px-5 py-3 text-sm bg-gray-900 text-white shadow rounded-md"
-  >
-    Add New Site
-  </button>
   <!-- alert  -->
   <div *ngIf="isSuccess" class="p-5 my-3 bg-green-400 text-white">
     {{ this.successMsg }}
@@ -15,15 +10,32 @@
   <div class="px-20 py-10 mb-10 my-5 border-4 border-gray-900">
     <h2 class="text-3xl text-center">{{ formState }} Site</h2>
     <p class="text-center">You can {{ formState }} site from the below form</p>
-    <form #f="ngForm" (ngSubmit)="onSubmit(f.value)">
+    <form [formGroup]="siteListForm" (ngSubmit)="onSubmit(siteListForm.value)">
       <div class="flex flex-col">
         <label class="text-lg font-medium mb-2">Site Name</label>
         <input
           type="text"
           name="siteName"
           class="border-2 border-gray-900 p-2 rounded-lg w-full mb-3"
-          [(ngModel)]="siteName"
+          required
+          formControlName="siteName"
+          [ngClass]="{
+            'bg-red-50 border-red-500':
+              siteListForm.get('siteName')?.invalid &&
+              (formSubmitted || siteListForm.controls['siteName'].touched)
+          }"
         />
+        <div
+          *ngIf="
+            (formSubmitted || siteListForm.controls['siteName'].touched) &&
+            siteListForm.controls['siteName'].invalid
+          "
+          class="mt-[-10px] mb-3 text-red-500"
+        >
+          <div *ngIf="siteListForm.controls['siteName'].hasError('required')">
+            Please enter site name
+          </div>
+        </div>
       </div>
       <div class="flex flex-col">
         <label class="text-lg font-medium mb-2">Site Url</label>
@@ -31,8 +43,27 @@
           type="text"
           name="siteUrl"
           class="border-2 border-gray-900 p-2 rounded-lg w-full mb-3"
-          [(ngModel)]="siteUrl"
+          formControlName="siteUrl"
+          [ngClass]="{
+            'bg-red-50 border-red-500':
+              siteListForm.get('siteUrl')?.invalid &&
+              (formSubmitted || siteListForm.controls['siteUrl'].touched)
+          }"
         />
+        <div
+          *ngIf="
+            (formSubmitted || siteListForm.controls['siteUrl'].touched) &&
+            siteListForm.controls['siteUrl'].invalid
+          "
+          class="mt-[-10px] mb-3 text-red-500"
+        >
+          <div *ngIf="siteListForm.controls['siteUrl'].hasError('required')">
+            Please enter site URL
+          </div>
+          <div *ngIf="siteListForm.controls['siteUrl'].hasError('invalidUrl')">
+            Please enter valid site URL
+          </div>
+        </div>
       </div>
       <div class="flex flex-col">
         <label class="text-lg font-medium mb-2">Site Image Url</label>
@@ -40,17 +71,40 @@
           type="text"
           name="siteImgUrl"
           class="border-2 border-gray-900 p-2 rounded-lg w-full"
-          [(ngModel)]="siteImgUrl"
+          formControlName="siteImgUrl"
+          [ngClass]="{
+            'bg-red-50 border-red-500':
+              siteListForm.get('siteImgUrl')?.invalid &&
+              (formSubmitted || siteListForm.controls['siteImgUrl'].touched)
+          }"
         />
+        <div
+          *ngIf="
+            (formSubmitted || siteListForm.controls['siteImgUrl'].touched) &&
+            siteListForm.controls['siteImgUrl'].invalid
+          "
+          class="mt-1 mb-3 text-red-500"
+        >
+          <div *ngIf="siteListForm.controls['siteImgUrl'].hasError('required')">
+            Please enter site image URL
+          </div>
+          <div
+            *ngIf="siteListForm.controls['siteImgUrl'].hasError('invalidUrl')"
+          >
+            Please enter valid site image URL
+          </div>
+        </div>
       </div>
       <button
         class="mt-10 mx-0.5 px-5 py-3 text-sm bg-grqy-900 text-white shadow rounded-md bg-gray-900"
+        type="submit"
       >
         {{ formState }} Site
       </button>
       <button
         class="mt-10 mx-0.5 px-5 py-2.5 text-sm border-2 border-gray-900 text-gray-900 shadow rounded-md"
         (click)="handleCancel()"
+        type="button"
       >
         Cancel
       </button>

@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { PasswordManagerService } from '../password-manager.service';
 import { Observable } from 'rxjs';
-
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { asyncUrlValidator } from '../validators/url.validators';
 @Component({
   selector: 'app-site-list',
   templateUrl: './site-list.component.html',
@@ -17,33 +18,64 @@ export class SiteListComponent {
   isSuccess: boolean = false;
   successMsg!: string;
   isLoading: boolean = false;
+  siteListForm: FormGroup;
+  formSubmitted: boolean = false;
 
-  constructor(private passwordManager: PasswordManagerService) {
+  constructor(
+    private passwordManager: PasswordManagerService,
+    private formBuilder: FormBuilder
+  ) {
     this.loadSite();
+    const urlPattern = '(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})[/\\w .-]*/?';
+    this.siteListForm = this.formBuilder.group({
+      siteName: ['', Validators.required],
+      siteUrl: ['', Validators.required, asyncUrlValidator()],
+      siteImgUrl: ['', Validators.required, asyncUrlValidator()],
+    });
   }
   showAlert(message: string) {
     this.isSuccess = true;
     this.successMsg = message;
+    setTimeout(() => {
+      this.isSuccess = false;
+    }, 2000);
+  }
+  areAllPropertiesEmptyString(obj: any): boolean {
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key) && obj[key] !== '') {
+        return false;
+      }
+    }
+    return true;
   }
   onSubmit(values: object) {
-    if (this.formState == 'Add new') {
-      this.passwordManager
-        .addSite(values)
-        .then((docRef) => {
-          this.showAlert('Data saved successfully');
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    } else if (this.formState == 'Edit') {
-      this.passwordManager
-        .updateSite(this.siteId, values)
-        .then((docRef) => {
-          this.showAlert('Data edited successfully');
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    this.formSubmitted = true;
+    if (this.areAllPropertiesEmptyString(values) && this.siteListForm.valid) {
+      this.siteListForm.get('siteUrl')?.setErrors({ required: true });
+      this.siteListForm.get('siteName')?.setErrors({ required: true });
+      this.siteListForm.get('siteImgUrl')?.setErrors({ required: true });
+      return;
+    }
+    if (this.siteListForm.valid) {
+      if (this.formState == 'Add new') {
+        this.passwordManager
+          .addSite(values)
+          .then((docRef) => {
+            this.showAlert('Data saved successfully');
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      } else if (this.formState == 'Edit') {
+        this.passwordManager
+          .updateSite(this.siteId, values)
+          .then((docRef) => {
+            this.showAlert('Data edited successfully');
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
     }
   }
   loadSite() {
@@ -55,16 +87,19 @@ export class SiteListComponent {
     siteImgUrl: string,
     siteId: string
   ) {
-    this.siteName = siteName;
-    this.siteUrl = siteUrl;
-    this.siteImgUrl = siteImgUrl;
+    this.siteListForm?.get('siteUrl')?.setValue(siteUrl);
+    this.siteListForm?.get('siteName')?.setValue(siteName);
+    this.siteListForm?.get('siteImgUrl')?.setValue(siteImgUrl);
     this.siteId = siteId;
     this.formState = 'Edit';
   }
   handleCancel() {
-    this.siteName = '';
-    this.siteUrl = '';
-    this.siteImgUrl = '';
+    this.siteListForm?.get('siteUrl')?.setValue('');
+    this.siteListForm?.get('siteUrl')?.setErrors(null);
+    this.siteListForm?.get('siteName')?.setValue('');
+    this.siteListForm?.get('siteName')?.setErrors(null);
+    this.siteListForm?.get('siteImgUrl')?.setValue('');
+    this.siteListForm?.get('siteImgUrl')?.setErrors(null);
     this.siteId = '';
     this.formState = 'Add';
   }
