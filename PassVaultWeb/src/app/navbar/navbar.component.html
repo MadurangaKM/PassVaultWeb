@@ -1,8 +1,11 @@
 <nav class="bg-white border-2 border-gray-900 px-2 py-3 shadow-md">
   <div class="container flex flex-wrap items-center justify-between mx-auto">
     <span class="text-xl font-semibold">PassVaultWeb</span>
-    <button class="text-white bg-gray-900 rounded-lg text-sm px-5 py-3">
-      Login
+    <button
+      class="text-white bg-gray-900 rounded-lg text-sm px-5 py-3"
+      (click)="handleLogout()"
+    >
+      Logout
     </button>
   </div>
 </nav>

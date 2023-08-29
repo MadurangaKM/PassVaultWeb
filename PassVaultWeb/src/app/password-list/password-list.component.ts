@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { PasswordManagerService } from '../password-manager.service';
 import { Observable } from 'rxjs';
+import { AES, enc } from 'crypto-js';
 
 @Component({
   selector: 'app-password-list',
@@ -13,7 +14,7 @@ export class PasswordListComponent {
   siteName!: string;
   siteUrl!: string;
   siteImgUrl!: string;
-  passwordList!: Observable<Array<any>>;
+  passwordList!: Array<any>;
   email!: string;
   username!: string;
   password!: string;
@@ -38,7 +39,9 @@ export class PasswordListComponent {
     this.isSuccess = true;
     this.successMsg = message;
   }
-  onSubmit(values: object) {
+  onSubmit(values: any) {
+    const encriptedPw = this.encryptPassword(values.password);
+    values.password = encriptedPw;
     if (this.fromState == 'Add new') {
       this.passwordManagerService
         .addPassword(values, this.siteId)
@@ -62,7 +65,9 @@ export class PasswordListComponent {
     }
   }
   loadPasswords() {
-    this.passwordList = this.passwordManagerService.loadPasswords(this.siteId);
+    this.passwordManagerService.loadPasswords(this.siteId).subscribe((val) => {
+      this.passwordList = val;
+    });
   }
   editPassword(
     email: string,
@@ -70,6 +75,9 @@ export class PasswordListComponent {
     password: string,
     passwordId: string
   ) {
+    if (password.length > 10) {
+      password = this.decriptPassword(password);
+    }
     this.email = email;
     this.username = username;
     this.password = password;
@@ -92,5 +100,25 @@ export class PasswordListComponent {
       .catch((err) => {
         console.log(err);
       });
+  }
+  encryptPassword(password: string) {
+    const secretKey =
+      'ZKY3ng1wnAaWXk6GwOfkuiZZSQO4ynA3saMzbq7ks8B5eo5hgKE7ce64J';
+    const encriptedPS = AES.encrypt(password, secretKey).toString();
+    return encriptedPS;
+  }
+  decriptPassword(password: string) {
+    const secretKey =
+      'ZKY3ng1wnAaWXk6GwOfkuiZZSQO4ynA3saMzbq7ks8B5eo5hgKE7ce64J';
+    const decriptedPS = AES.decrypt(password, secretKey).toString(enc.Utf8);
+    return decriptedPS;
+  }
+  handleDecrypt(password: string, index: number) {
+    const decryptPw = this.decriptPassword(password);
+    this.passwordList[index].password = decryptPw;
+  }
+  handleEncrypt(password: string, index: number) {
+    const encryptPw = this.encryptPassword(password);
+    this.passwordList[index].password = encryptPw;
   }
 }
