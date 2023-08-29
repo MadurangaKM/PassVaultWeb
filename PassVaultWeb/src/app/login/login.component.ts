@@ -9,6 +9,9 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent {
   isError: boolean = false;
+  isSignUp: boolean = false;
+  actionLabel = 'Login';
+  isLoading: boolean = false;
   constructor(
     private passwordManagerService: PasswordManagerService,
     private router: Router
@@ -18,15 +21,45 @@ export class LoginComponent {
     }
   }
   onSubmit(values: any) {
-    this.passwordManagerService
-      .login(values.email, values.password)
-      .then(() => {
-        this.router.navigate(['/site-list']);
-        this.isError = false;
-        localStorage.setItem('isLogin', 'true');
-      })
-      .catch((err) => {
-        this.isError = true;
-      });
+    if (this.isSignUp) {
+      this.isLoading = true;
+      this.passwordManagerService
+        .signup(values.email, values.password)
+        .then(() => {
+          this.isError = false;
+          localStorage.setItem('isLogin', 'true');
+          this.router.navigate(['/site-list']);
+          this.isLoading = false;
+        })
+        .catch((err) => {
+          this.isError = true;
+        });
+    }
+    if (!this.isSignUp) {
+      this.isLoading = true;
+      this.passwordManagerService
+        .login(values.email, values.password)
+        .then(() => {
+          this.router.navigate(['/site-list']);
+          this.isError = false;
+          localStorage.setItem('isLogin', 'true');
+          this.isLoading = false;
+        })
+        .catch((err) => {
+          this.isError = true;
+        });
+    }
+  }
+  handleSignup(status: string) {
+    if (status == 'login') {
+      this.isSignUp = false;
+      this.actionLabel = 'Login';
+      this.isError = false;
+    }
+    if (status == 'signup') {
+      this.isSignUp = true;
+      this.actionLabel = 'Sign up';
+      this.isError = false;
+    }
   }
 }

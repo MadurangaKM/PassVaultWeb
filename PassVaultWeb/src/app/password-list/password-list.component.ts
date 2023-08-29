@@ -22,6 +22,8 @@ export class PasswordListComponent {
   fromState: string = 'Add new';
   isSuccess: boolean = false;
   successMsg!: string;
+  isLoading: boolean = false;
+  isLoadingForm: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -38,8 +40,12 @@ export class PasswordListComponent {
   showAlert(message: string) {
     this.isSuccess = true;
     this.successMsg = message;
+    setTimeout(() => {
+      this.isSuccess = false;
+    }, 2000);
   }
   onSubmit(values: any) {
+    this.isLoadingForm = true;
     const encriptedPw = this.encryptPassword(values.password);
     values.password = encriptedPw;
     if (this.fromState == 'Add new') {
@@ -65,8 +71,10 @@ export class PasswordListComponent {
     }
   }
   loadPasswords() {
+    this.isLoading = true;
     this.passwordManagerService.loadPasswords(this.siteId).subscribe((val) => {
       this.passwordList = val;
+      this.isLoading = false;
     });
   }
   editPassword(
@@ -90,12 +98,15 @@ export class PasswordListComponent {
     this.password = '';
     this.passwordId = '';
     this.fromState = 'Add new';
+    this.isLoadingForm = false;
   }
   deletePassword(passwordId: string) {
+    this.isLoadingForm = true;
     this.passwordManagerService
       .deletePassword(this.siteId, passwordId)
       .then(() => {
         this.showAlert('Data deleted successfully');
+        this.isLoadingForm = false;
       })
       .catch((err) => {
         console.log(err);

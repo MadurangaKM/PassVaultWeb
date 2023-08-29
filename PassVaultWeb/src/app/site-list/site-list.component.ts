@@ -16,6 +16,7 @@ export class SiteListComponent {
   formState: string = 'Add new';
   isSuccess: boolean = false;
   successMsg!: string;
+  isLoading: boolean = false;
 
   constructor(private passwordManager: PasswordManagerService) {
     this.loadSite();
