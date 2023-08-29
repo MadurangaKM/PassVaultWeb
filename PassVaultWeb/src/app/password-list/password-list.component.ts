@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { PasswordManagerService } from '../password-manager.service';
-import { Observable } from 'rxjs';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AES, enc } from 'crypto-js';
+import Helper from '../helper';
 
 @Component({
   selector: 'app-password-list',
@@ -15,19 +16,19 @@ export class PasswordListComponent {
   siteUrl!: string;
   siteImgUrl!: string;
   passwordList!: Array<any>;
-  email!: string;
-  username!: string;
-  password!: string;
   passwordId!: string;
   fromState: string = 'Add new';
   isSuccess: boolean = false;
   successMsg!: string;
   isLoading: boolean = false;
   isLoadingForm: boolean = false;
+  passwordListForm: FormGroup;
+  formSubmitted: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
-    private passwordManagerService: PasswordManagerService
+    private passwordManagerService: PasswordManagerService,
+    private formBuilder: FormBuilder
   ) {
     this.route.queryParams.subscribe((val: any) => {
       this.siteId = val.id;
@@ -36,6 +37,11 @@ export class PasswordListComponent {
       this.siteImgUrl = val.siteImgUrl;
     });
     this.loadPasswords();
+    this.passwordListForm = this.formBuilder.group({
+      email: ['', [Validators.required, Validators.email]],
+      username: ['', [Validators.required, Validators.minLength(6)]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+    });
   }
   showAlert(message: string) {
     this.isSuccess = true;
@@ -45,29 +51,41 @@ export class PasswordListComponent {
     }, 2000);
   }
   onSubmit(values: any) {
-    this.isLoadingForm = true;
     const encriptedPw = this.encryptPassword(values.password);
     values.password = encriptedPw;
-    if (this.fromState == 'Add new') {
-      this.passwordManagerService
-        .addPassword(values, this.siteId)
-        .then(() => {
-          this.showAlert('Data saved successfully');
-          this.handleCancel();
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    } else if (this.fromState == 'Edit') {
-      this.passwordManagerService
-        .updatePassword(this.siteId, this.passwordId, values)
-        .then(() => {
-          this.showAlert('Data edited successfully');
-          this.handleCancel();
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    this.formSubmitted = true;
+    if (
+      Helper.hasAnyPropertyEmptyString(values) &&
+      this.passwordListForm.valid
+    ) {
+      this.passwordListForm.get('email')?.setErrors({ required: true });
+      this.passwordListForm.get('username')?.setErrors({ required: true });
+      this.passwordListForm.get('password')?.setErrors({ required: true });
+      return;
+    }
+    if (this.passwordListForm.valid) {
+      this.isLoadingForm = true;
+      if (this.fromState == 'Add new') {
+        this.passwordManagerService
+          .addPassword(values, this.siteId)
+          .then(() => {
+            this.showAlert('Data saved successfully');
+            this.handleCancel();
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      } else if (this.fromState == 'Edit') {
+        this.passwordManagerService
+          .updatePassword(this.siteId, this.passwordId, values)
+          .then(() => {
+            this.showAlert('Data edited successfully');
+            this.handleCancel();
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
     }
   }
   loadPasswords() {
@@ -86,16 +104,20 @@ export class PasswordListComponent {
     if (password.length > 10) {
       password = this.decriptPassword(password);
     }
-    this.email = email;
-    this.username = username;
-    this.password = password;
+    this.passwordListForm?.get('email')?.setValue(email);
+    this.passwordListForm?.get('username')?.setValue(username);
+    this.passwordListForm?.get('password')?.setValue(password);
     this.passwordId = passwordId;
     this.fromState = 'Edit';
   }
   handleCancel() {
-    this.email = '';
-    this.username = '';
-    this.password = '';
+    this.passwordListForm?.get('email')?.setValue('');
+    this.passwordListForm?.get('email')?.setErrors(null);
+    this.passwordListForm?.get('username')?.setValue('');
+    this.passwordListForm?.get('username')?.setErrors(null);
+    this.passwordListForm?.get('password')?.setValue('');
+    this.passwordListForm?.get('password')?.setErrors(null);
+
     this.passwordId = '';
     this.fromState = 'Add new';
     this.isLoadingForm = false;

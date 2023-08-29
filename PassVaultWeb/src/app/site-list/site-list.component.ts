@@ -3,6 +3,8 @@ import { PasswordManagerService } from '../password-manager.service';
 import { Observable } from 'rxjs';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { asyncUrlValidator } from '../validators/url.validators';
+import { asyncImgUrlValidator } from '../validators/img.url.validators copy';
+import Helper from '../helper';
 @Component({
   selector: 'app-site-list',
   templateUrl: './site-list.component.html',
@@ -10,9 +12,6 @@ import { asyncUrlValidator } from '../validators/url.validators';
 })
 export class SiteListComponent {
   allSites!: Observable<Array<any>>;
-  siteName!: string;
-  siteUrl!: string;
-  siteImgUrl!: string;
   siteId!: string;
   formState: string = 'Add new';
   isSuccess: boolean = false;
@@ -26,11 +25,10 @@ export class SiteListComponent {
     private formBuilder: FormBuilder
   ) {
     this.loadSite();
-    const urlPattern = '(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})[/\\w .-]*/?';
     this.siteListForm = this.formBuilder.group({
       siteName: ['', Validators.required],
       siteUrl: ['', Validators.required, asyncUrlValidator()],
-      siteImgUrl: ['', Validators.required, asyncUrlValidator()],
+      siteImgUrl: ['', Validators.required, asyncImgUrlValidator()],
     });
   }
   showAlert(message: string) {
@@ -40,17 +38,9 @@ export class SiteListComponent {
       this.isSuccess = false;
     }, 2000);
   }
-  areAllPropertiesEmptyString(obj: any): boolean {
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key) && obj[key] !== '') {
-        return false;
-      }
-    }
-    return true;
-  }
   onSubmit(values: object) {
     this.formSubmitted = true;
-    if (this.areAllPropertiesEmptyString(values) && this.siteListForm.valid) {
+    if (Helper.hasAnyPropertyEmptyString(values) && this.siteListForm.valid) {
       this.siteListForm.get('siteUrl')?.setErrors({ required: true });
       this.siteListForm.get('siteName')?.setErrors({ required: true });
       this.siteListForm.get('siteImgUrl')?.setErrors({ required: true });
