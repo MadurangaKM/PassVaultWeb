@@ -12,7 +12,11 @@
         <h1 class="text-2xl font-bold text-gray-900 text-center">
           {{ actionLabel }} to your account
         </h1>
-        <form class="space-y-6" #f="ngForm" (ngSubmit)="onSubmit(f.value)">
+        <form
+          class="space-y-6"
+          [formGroup]="loginForm"
+          (ngSubmit)="onSubmit(loginForm.value)"
+        >
           <div>
             <label class="block mb-2 text-sm font-medium text-gray-900">
               Your Email
@@ -22,8 +26,28 @@
               name="email"
               placeholder="name@company.com"
               class="block w-full p-2.5 text-sm bg-gray-50 border-2 border-gray-900 rounded-md"
-              ngModel
+              required
+              formControlName="email"
+              [ngClass]="{
+                'bg-red-50 border-red-500':
+                  loginForm.get('email')?.invalid &&
+                  (formSubmitted || loginForm.controls['email'].touched)
+              }"
             />
+            <div
+              *ngIf="
+                (formSubmitted || loginForm.controls['email'].touched) &&
+                loginForm.controls['email'].invalid
+              "
+              class="mt-1 mb-3 text-red-500"
+            >
+              <div *ngIf="loginForm.controls['email'].hasError('required')">
+                Please enter email address
+              </div>
+              <div *ngIf="loginForm.controls['email'].hasError('email')">
+                Please enter valid email address
+              </div>
+            </div>
           </div>
           <div>
             <label class="block mb-2 text-sm font-medium text-gray-900">
@@ -34,8 +58,33 @@
               name="password"
               placeholder="********"
               class="block w-full p-2.5 text-sm bg-gray-50 border-2 border-gray-900 rounded-md"
-              ngModel
+              required
+              formControlName="password"
+              [ngClass]="{
+                'bg-red-50 border-red-500':
+                  loginForm.get('password')?.invalid &&
+                  (formSubmitted || loginForm.controls['password'].touched)
+              }"
             />
+            <div
+              *ngIf="
+                (formSubmitted || loginForm.controls['password'].touched) &&
+                loginForm.controls['password'].invalid
+              "
+              class="mt-1 mb-3 text-red-500"
+            >
+              <div *ngIf="loginForm.controls['password'].hasError('required')">
+                Please enter password
+              </div>
+              <div
+                *ngIf="
+                  loginForm.controls['password'].invalid &&
+                  !loginForm.controls['password'].hasError('required')
+                "
+              >
+                Password must be at least 6 charachter long
+              </div>
+            </div>
           </div>
           <ng-template #button>
             <button
