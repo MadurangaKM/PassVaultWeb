@@ -1,18 +1,20 @@
 <app-navbar></app-navbar>
 <div class="container mx-auto my-16">
-  <h1 class="text-5xl mt-0 mb-3">PassVaultWeb</h1>
-  <p class="mb-5">Your password manage app</p>
+  <h1 class="text-5xl mt-0 mb-1 mx-4 lg:mx-0">PassVaultWeb</h1>
+  <p class="mb-5 mx-4 lg:mx-0">Your password manage app</p>
   <!-- alert  -->
   <div *ngIf="isSuccess" class="p-5 my-3 bg-green-400 text-white">
     {{ this.successMsg }}
   </div>
   <!-- Add New Site form  -->
-  <div class="px-20 py-10 mb-10 my-5 border-4 border-gray-900">
+  <div
+    class="lg:px-20 px-5 py-10 mb-10 my-5 lg:border-4 border-t-2 border-gray-900"
+  >
     <h2 class="text-3xl text-center">{{ formState }} Site</h2>
     <p class="text-center">You can {{ formState }} site from the below form</p>
     <form [formGroup]="siteListForm" (ngSubmit)="onSubmit(siteListForm.value)">
       <div class="flex flex-col">
-        <label class="text-lg font-medium mb-2">Site Name</label>
+        <label class="text-lg font-medium mb-2 mt-10 lg:mt-2">Site Name</label>
         <input
           type="text"
           name="siteName"
@@ -134,7 +136,7 @@
     </div>
   </ng-template>
   <div
-    class="grid grid-cols-4 gap-5"
+    class="grid grid-cols-1 lg:grid-cols-4 md:grid-cols-2 gap-5 mx-6 lg:mx-0"
     *ngIf="allSites | async as site; else loading"
   >
     <div

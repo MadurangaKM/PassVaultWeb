@@ -33,6 +33,7 @@ export class LoginComponent {
         })
         .catch((err) => {
           this.isError = true;
+          this.isLoading = false;
         });
     }
     if (!this.isSignUp) {
@@ -47,6 +48,7 @@ export class LoginComponent {
         })
         .catch((err) => {
           this.isError = true;
+          this.isLoading = false;
         });
     }
   }
